@@ -1,0 +1,10 @@
+{
+    "main": {
+        "BOT_TOKEN": "Your token here",
+        "ADMINS": [
+            123
+        ],
+        "password": "Your password there",
+        "path_photo": "tgbot/screener/screenshot"
+    }
+}
