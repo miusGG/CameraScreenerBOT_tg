@@ -1,16 +1,90 @@
 from aiogram import Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message
+from aiogram import F
+from aiogram.types import CallbackQuery
+from aiogram.types import FSInputFile
+from tgbot.config import load_config
+from pathlib import Path
 
+import os
+
+from tgbot.screener.sc_class import WebcamSaver
+
+from texts import menu_text, help_text
+
+import logging
+
+from tgbot.keyboards.inline import menu_keyboard
 from tgbot.filters.admin import AdminFilter
-from texts import hello_text
 
 admin_router = Router()
 admin_router.message.filter(AdminFilter())
-
+cfg =load_config("cfg.json")
+folder_photo = cfg.tg_bot.path_photo
+cam = WebcamSaver(output_dir=folder_photo)
 
 @admin_router.message(CommandStart())
-async def admin_start(message: Message):
-    await message.reply("Admin Mode: On\n[Only for Admins] Bot start")
-    text = hello_text(message.from_user.first_name)
-    await message.reply(text)
+async def user_start_com(message: Message):
+    text = menu_text()
+    await message.reply(text, reply_markup=menu_keyboard())
+    logging.info("TEST ON START!")
+
+@admin_router.message(F.text == "/menu")
+async def user_start_text(message: Message):
+    text = menu_text()
+    await message.reply(text, reply_markup=menu_keyboard())
+    logging.info("TEST ON START!")
+
+@admin_router.message(F.text == "/clear")
+async def clearing(mes: Message):
+    await mes.reply("Удаляем все фото...")
+    folder = Path(folder_photo)
+    for file_path in folder.rglob('*'):
+        if file_path.is_file():
+            file_path.unlink()
+    await mes.reply("Удаление прошло!\nПроверьте, в /menu.")
+
+@admin_router.message(F.text)
+async def texter(mes:Message):
+    if mes.text == "m":
+        text = menu_text()
+        await mes.reply(text, reply_markup=menu_keyboard())
+        logging.info("TEST ON START!")
+    else:
+        await mes.reply("Unknown command :(")
+
+@admin_router.callback_query(F.data == "screen")
+async def process_screenshot_press(callback: CallbackQuery):
+    await callback.answer("Smile face!!!")
+
+    screenshot_path = cam.take_screenshot()
+
+    if screenshot_path:
+        await callback.message.answer("📸 Screenshot done! Logging send! Look:")
+        photo_file = FSInputFile(screenshot_path)
+        await callback.message.answer_photo(photo=photo_file, caption=f"Webcam screenshot path: {screenshot_path}")
+    else:
+        await callback.message.answer("❌ Error: Failed to take a screenshot.")
+
+
+@admin_router.callback_query(F.data == "cfg")
+async def process_config_press(callback: CallbackQuery):
+    await callback.answer()
+    await callback.message.answer("⚙️ Settings:\nComing soon... Wait it on GitHub!")
+
+
+@admin_router.callback_query(F.data == "list")
+async def process_list_press(callback: CallbackQuery):
+    await callback.answer()
+    folder_path = "tgbot/screener/screenshot"
+    files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+    files_text = "\n".join(files)
+    await callback.message.answer("📁 Screenshots list:\n"+files_text)
+
+
+@admin_router.callback_query(F.data == "h")
+async def process_help_press(callback: CallbackQuery):
+    await callback.answer()
+    t  =help_text()
+    await callback.message.answer("❓ Help with bot:\n" + t)

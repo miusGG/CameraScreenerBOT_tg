@@ -8,6 +8,7 @@ class TgBot:
     token: str
     admins_ids: List[int]
     path_photo: str
+    password: str
 
     @staticmethod
     def from_json(config: json):
@@ -17,7 +18,8 @@ class TgBot:
         token = main_config['BOT_TOKEN']
         admin_ids = main_config['ADMINS']
         path_photo = main_config['path_photo']
-        return TgBot(token=token, admins_ids=admin_ids, path_photo=path_photo)
+        password = main_config['password']
+        return TgBot(token=token, admins_ids=admin_ids, path_photo=path_photo, password=password)
 
 
 @dataclass
@@ -33,6 +35,7 @@ def load_config(path):
         token
         admins_ids
         path_photo
+        password
     """
     return Config(
         tg_bot=TgBot.from_json(path)
