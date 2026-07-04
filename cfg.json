@@ -1,9 +1,0 @@
-{
-  "main": {
-    "BOT_TOKEN": "1",
-    "ADMINS": [
-      -1
-    ],
-    "path_photo": "tgbot/screener/screenshot"
-  }
-}
