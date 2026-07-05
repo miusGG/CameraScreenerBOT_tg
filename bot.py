@@ -13,7 +13,7 @@ from tgbot.services import broadcaster
 
 
 async def on_startup(bot: Bot, admin_ids: list[int]):
-    await broadcaster.broadcast(bot, admin_ids, "[Only for Admins] Bot ON")
+    await broadcaster.broadcast(bot, admin_ids, "[Status] Bot ON")
 
 
 def register_global_middlewares(dp: Dispatcher, config: Config, session_pool=None):
@@ -84,4 +84,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
-        logging.error("БОТ ВЫКЛЮЧЕН!")
+        logging.error("BOT OFF")
